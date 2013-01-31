@@ -41,9 +41,10 @@ END_FRAME_PAUSE = 4000
 # regions.
 SIMPLIFICATION_TOLERANCE = 512
 
-MAX_PACKED_HEIGHT = 10000
+MAX_PACKED_HEIGHT = 100000
 
-def slice_size(a, b):
+
+def slice_size(a,b):
     return (a.stop - a.start) * (b.stop - b.start)
 
 def combine_slices(a, b, c, d):
@@ -103,8 +104,9 @@ class Allocator2D:
 
             for col in xrange(bw - w + 1):
                 if self.bitmap[row, col] == 0:
-                    if not self.bitmap[row:row+h,col:col+w].any():
-                        self.bitmap[row:row+h,col:col+w] = 1
+                    if not self.bitmap[row:row+h, col:col+w].any():
+                        print 'okay'
+                        self.bitmap[row:row+h, col:col+w] = 1
                         self.available_space[row:row+h] -= w
                         self.num_used_rows = max(self.num_used_rows, row + h)
                         return row, col
@@ -129,7 +131,8 @@ def find_matching_rect(bitmap, num_used_rows, packed, src, sx, sy, w, h):
 
 def generate_animation(anim_name):
     frames = []
-    rex = re.compile("screen_([0-9]+).png")
+    rex = re.compile("BB Peek_FR_([0-9]+).png")
+
     for f in os.listdir(anim_name):
         m = re.search(rex, f)
         if m:

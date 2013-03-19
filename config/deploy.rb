@@ -1,25 +1,57 @@
-set :application, "set your application name here"
-set :repository,  "set your repository location here"
+# set the remote directory name ( assumed in /var/www/ )
+set :application, "testsite.test.dev"
 
-# set :scm, :git # You can set :scm explicitly or Capistrano will make an intelligent guess based on known version control directory names
-# Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
+set :repository, "git@teehanlax.beanstalkapp.com:/bell-capistrano-testing.git"
 
-role :web, "your web-server here"                          # Your HTTP server, Apache/etc
-role :app, "your app-server here"                          # This may be the same as your `Web` server
-role :db,  "your primary db-server here", :primary => true # This is where Rails migrations will run
-role :db,  "your slave db-server here"
+set :aws_access_key_id, 'AKIAJEV7LJGQOQICQFNA'
+set :aws_secret_access_key, 'EH/+OxqW8UXHgYrpJndFuxTZxvJ8ZvbFbOQPLTjd'
 
-# if you want to clean up old releases on each deploy uncomment this:
-# after "deploy:restart", "deploy:cleanup"
+set :user, "ubuntu"
+set :ssh_options, {:forward_agent => true}
+ssh_options[:keys] = ["~/keys/bell.pem"]
 
-# if you're still using the script/reaper helper you will need
-# these http://github.com/rails/irs_process_scripts
+# Is sudo required to manipulate files on the remote server?
+set :use_sudo, false
 
-# If you are using Passenger mod_rails uncomment this:
-# namespace :deploy do
-#   task :start do ; end
-#   task :stop do ; end
-#   task :restart, :roles => :app, :except => { :no_release => true } do
-#     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
-#   end
-# end
+# How are the project files being transferred to the remote server?
+set :deploy_via, :remote_cache
+
+# Maintain a local repository cache. Speeds up the copy process.
+set :copy_cache, true
+
+# Ignore any local files?
+set :copy_exclude, %w(.git)
+
+######################################################
+# Git
+######################################################
+
+# What version control solution does the project use?
+set :scm, :git
+
+#############################################################
+# Stages
+#############################################################
+set :stages, %w(production staging development)
+set :stage_dir, "config/deployments/"
+set :default_stage, "staging" #if we only do “cap deploy” this will be the stage used.
+require 'capistrano/ext/multistage' #yes. First we set and then we require.
+
+#############################################################
+# Tasks
+#############################################################
+
+# Remove older realeases. By default, it will remove all older then the 5th.
+after :deploy, 'deploy:cleanup'
+
+
+
+#############################################################
+# Get instances from ec2 loadbalancer
+#############################################################
+
+def fetch_from_ec2_loadbalancer
+    instances_for_deploy = []
+    loadbalancer lb_webserver, :web
+    instances_for_deploy
+end

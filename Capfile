@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'railsless-deploy'
+
 # Add colours to the Capistrano output
 require 'capistrano_colors'
 # aws require
